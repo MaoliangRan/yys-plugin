@@ -21,7 +21,8 @@ MSG = []
 tasks = []
 NeedCloseGame = False
 NeedCloseSystem = False
-
+PlayerNumber = 2
+functions = {}
 
 
 def ChouCeZhiEntry(LogUI, NeedCloseGame, NeedCloseSystem):
@@ -30,13 +31,15 @@ def ChouCeZhiEntry(LogUI, NeedCloseGame, NeedCloseSystem):
     t = threading.Thread(target=fun.Run, args=(LogUI, NeedCloseGame, NeedCloseSystem))
     t.start()
     tasks.append(fun)
+    functions['choucezhi'] = fun
 
-def YongShengZhiHaiEntry(LogUI, NeedCloseGame, NeedCloseSystem):
+def YongShengZhiHaiEntry(LogUI, NeedCloseGame, NeedCloseSystem, PlayerNumber):
     # 通用活动
     fun = YongShengZhiHai()
-    t = threading.Thread(target=fun.Run, args=(LogUI, NeedCloseGame, NeedCloseSystem))
+    t = threading.Thread(target=fun.Run, args=(LogUI, NeedCloseGame, NeedCloseSystem, PlayerNumber))
     t.start()
     tasks.append(fun)
+    functions['yongshengzhihai'] = fun
 
 def HuoDongEntry(LogUI, NeedCloseGame, NeedCloseSystem):
     # 通用活动
@@ -44,6 +47,7 @@ def HuoDongEntry(LogUI, NeedCloseGame, NeedCloseSystem):
     t = threading.Thread(target=fun.Run, args=(LogUI, NeedCloseGame, NeedCloseSystem))
     t.start()
     tasks.append(fun)
+    functions['huodong'] = fun
 
 def YuLingEntry(LogUI, NeedCloseGame, NeedCloseSystem):
     # 御灵
@@ -51,6 +55,7 @@ def YuLingEntry(LogUI, NeedCloseGame, NeedCloseSystem):
     t = threading.Thread(target=fun.Run, args=(LogUI, NeedCloseGame, NeedCloseSystem))
     t.start()
     tasks.append(fun)
+    functions['yuling'] = fun
 
 def YeYuanHuoEntry(LogUI, NeedCloseGame, NeedCloseSystem):
     # 业原火
@@ -58,6 +63,7 @@ def YeYuanHuoEntry(LogUI, NeedCloseGame, NeedCloseSystem):
     t = threading.Thread(target=fun.Run, args=(LogUI, NeedCloseGame, NeedCloseSystem))
     t.start()
     tasks.append(fun)
+    functions['yeyuanhuo'] = fun
 
 def PersonalTupoEntry(LogUI, NeedCloseGame, NeedCloseSystem):
     # 个人突破
@@ -65,15 +71,16 @@ def PersonalTupoEntry(LogUI, NeedCloseGame, NeedCloseSystem):
     t = threading.Thread(target=fun.Run, args=(LogUI, NeedCloseGame, NeedCloseSystem))
     t.start()
     tasks.append(fun)
+    functions['personaltupo'] = fun
 
-def YuhunEntry(LogUI, NeedCloseGame, NeedCloseSystem):
+def YuhunEntry(LogUI, NeedCloseGame, NeedCloseSystem, PlayerNumber):
     # 御魂
-    #messagebox.showinfo('提示', '请确保两个帐号都已经进入组队房间并且阵容锁定')
+    #messagebox.showinfo('提示', '请确保帐号都已经进入组队房间并且阵容锁定')
     fun = YuHun()
-    t = threading.Thread(target=fun.Run, args=(LogUI, NeedCloseGame, NeedCloseSystem))
+    t = threading.Thread(target=fun.Run, args=(LogUI, NeedCloseGame, NeedCloseSystem, PlayerNumber))
     t.start()
     tasks.append(fun)
-
+    functions['yuhun'] = fun
 
 def StopAll(LogUI):
     try:
@@ -134,6 +141,17 @@ def ChangeEndActionWithSystem():
         i.NeedCloseSystem = NeedCloseSystem
     print('NeedCloseSystem', NeedCloseSystem)
 
+def Numbers_of_Player():
+    """
+    设置组队人数
+    """
+    global functions
+    global PlayerNumber
+    PlayerNumber = 2 if PlayerNumber == 3 else 3
+    if "yuhun" in functions:
+        functions["yuhun"].PlayerNumber = PlayerNumber
+    if "yongshengzhihai" in functions:
+        functions["yongshengzhihai"].PlayerNumber = PlayerNumber
 
 class Window:
     def __init__(self):
@@ -167,12 +185,13 @@ class Window:
             side=TOP, expand=YES)
         Button(frame1, command=lambda: PersonalTupoEntry(t3, NeedCloseGame, NeedCloseSystem), text='个人突破8退4(单开)', width=20).pack(
             side=TOP, expand=YES)
-        Button(frame1, command=lambda: YongShengZhiHaiEntry(t3, NeedCloseGame, NeedCloseSystem), text='永生之海副本(可双开)', width=20).pack(
+        Button(frame1, command=lambda: YongShengZhiHaiEntry(t3, NeedCloseGame, NeedCloseSystem, PlayerNumber), text='永生之海副本(可双开)', width=20).pack(
             side=TOP, expand=YES)
-        Button(frame1, command=lambda: YuhunEntry(t3, NeedCloseGame, NeedCloseSystem), text='御魂/觉醒副本(可双开)', width=20).pack(
+        Button(frame1, command=lambda: YuhunEntry(t3, NeedCloseGame, NeedCloseSystem, PlayerNumber), text='御魂/觉醒(三开请勾选)', width=20).pack(
             side=TOP, expand=YES)
-        Checkbutton(frame1, text='体力用完关闭游戏（无效）', command=ChangeEndActionWithGame).pack(side=TOP, anchor='w')
-        Checkbutton(frame1, text='体力用完立即关机（无效）', command=ChangeEndActionWithSystem).pack(side=TOP, anchor='w')
+        # Checkbutton(frame1, text='体力用完关闭游戏（无效）', command=ChangeEndActionWithGame).pack(side=TOP, anchor='w')
+        # Checkbutton(frame1, text='体力用完立即关机（无效）', command=ChangeEndActionWithSystem).pack(side=TOP, anchor='w')
+        Checkbutton(frame1, text='三人组队(勾选则为三人)', command=Numbers_of_Player).pack(side=TOP, anchor='w')
         # Label(frame1,text=' ',font =('微软雅黑', 7), borderwidth=2).pack(side=TOP, fill=X, expand=YES)
         # Label(frame1,text=' ',font =('微软雅黑', 7), borderwidth=2).pack(side=TOP, fill=X, expand=YES)
         Button(frame1, command=lambda: StopAll(t3), text='停止运行', width=20).pack(side=TOP, expand=YES)

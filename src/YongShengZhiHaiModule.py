@@ -144,14 +144,17 @@ class YongShengZhiHai():
         self._flag = False
         self.NeedCloseGame = False
         self.NeedCloseSystem = False
+        self.PlayerNumber = 2
 
-    def Run(self, LogUI, NeedCloseGame, NeedCloseSystem):
+    def Run(self, LogUI, NeedCloseGame, NeedCloseSystem, PlayerNumber):
         imgs = LoadImgs()
         tips = {}
+        self.PlayerNumber = PlayerNumber
         tips['end1'] = "胜利界面"
         tips['end2'] = "胜利达摩"
         tips['tiaozhan'] = "挑战按钮"
         tips['reject'] = "协作拒绝按钮"
+        tips['invite'] = "组队邀请按钮"
         while self._flag is not True:
             screen = GetScreenShot()
             # WindowShape = screen.shape
@@ -160,8 +163,8 @@ class YongShengZhiHai():
             # 为了优化速度，把计算屏幕截图的特征提取出来，避免重复运算
             kp2, des2 = ComputeScreenShot(screen)
             # 乱移动一下鼠标，防止有时候队长先进入组队页面后鼠标停留在挑战处导致无法识别
-            pyautogui.moveTo((random.randint(100, 1000),random.randint(100, 1000)), duration=0.15)
-            for i in ['end1', 'end2', 'reject','tiaozhan']:
+            # pyautogui.moveTo((random.randint(100, 1000),random.randint(100, 1000)), duration=0.15)
+            for i in ['end1', 'end2', 'reject','tiaozhan','invite']:
                 print("图像识别判定中，寻找:"+tips[i])
                 obj = imgs[i]
                 pos = GetLocation(obj, kp2, des2)
@@ -174,32 +177,72 @@ class YongShengZhiHai():
                         newPos = (pos[0] + 80, pos[1] + 80)
                         pos = CheatPos(newPos, 10)
                         resultobj['end2']=pos
+                    elif i == 'invite':
+                        pos = CheatPos(pos, 20)
+                        resultobj['invite']=pos
                     elif i == 'tiaozhan':
                         resultobj['tiaozhan']=CheatPos(pos,15)
                     elif i == 'reject':
                         pos = CheatPos(pos, 3)
                         resultobj['reject']=pos
-                # else:
-                #     result.append(None)
+                else:
+                     resultobj[i] = None
             # 检查结果
-            for i in resultobj:
-                if i is not None:
-                    if i=='tiaozhan':
-                        if resultobj[i] is not None and 'end1' in resultobj and resultobj['end1'] is not None:
-                            print("点击胜利界面")
-                            Click(resultobj['end1'])
-                        elif resultobj[i] is not None and 'end2' in resultobj and resultobj['end2'] is not None:
-                            print("点击胜利达摩")
-                            Click(resultobj['end2'])
-                        if resultobj[i] is not None:
-                            print("点击挑战按钮")
-                            Click(resultobj[i])
-                            print("进入挑战，等待一段时间再进行图像识别")
-                            time.sleep(40)
-                    else:
-                        if resultobj[i] is not None:
-                            print("点击"+tips[i])
-                            Click(resultobj[i])
+            print('yuhun player number:', self.PlayerNumber)
+            if resultobj['reject'] is not None:
+                print("关闭邀请")
+                Click(resultobj['reject'])
+                if resultobj['end1'] is not None:
+                    print("点击胜利界面")
+                    Click(resultobj['end1'])
+                if resultobj['end2'] is not None:
+                    print("点击胜利达摩")
+                    Click(resultobj['end2'])
+            elif resultobj['end1'] is not None:
+                print("点击胜利界面")
+                Click(resultobj['end1'])
+                if resultobj['end2'] is not None:
+                    print("点击胜利达摩")
+                    Click(resultobj['end2'])
+            elif resultobj['end2'] is not None:
+                print("点击胜利达摩")
+                Click(resultobj['end2'])
+                if resultobj['end1'] is not None:
+                    print("点击胜利界面")
+                    Click(resultobj['end1'])
+            elif self.PlayerNumber is 3 and resultobj['invite'] is not None:
+                print("三人队有队友未加入，等待一会")
+                time.sleep(0.5)
+                if resultobj['end1'] is not None:
+                    print("点击胜利界面")
+                    Click(resultobj['end1'])
+                if resultobj['end2'] is not None:
+                    print("点击胜利达摩")
+                    Click(resultobj['end2'])
+            elif resultobj['tiaozhan'] is not None:
+                print("点击挑战")
+                Click(resultobj['tiaozhan'])
+                time.sleep(40)
+                # 乱移动一下鼠标，防止有时候队长先进入组队页面后鼠标停留在挑战处导致无法识别
+                pyautogui.moveTo((random.randint(100, 1000),random.randint(100, 1000)), duration=0.15)
+            # for i in resultobj:
+            #     if i is not None:
+            #         if i=='tiaozhan':
+            #             if resultobj[i] is not None and 'end1' in resultobj and resultobj['end1'] is not None:
+            #                 print("点击胜利界面")
+            #                 Click(resultobj['end1'])
+            #             elif resultobj[i] is not None and 'end2' in resultobj and resultobj['end2'] is not None:
+            #                 print("点击胜利达摩")
+            #                 Click(resultobj['end2'])
+            #             if resultobj[i] is not None:
+            #                 print("点击挑战按钮")
+            #                 Click(resultobj[i])
+            #                 print("进入挑战，等待一段时间再进行图像识别")
+            #                 time.sleep(40)
+            #         else:
+            #             if resultobj[i] is not None:
+            #                 print("点击"+tips[i])
+            #                 Click(resultobj[i])
             # time.sleep(random.randint(1500, 1800) / 1000)
 
 
